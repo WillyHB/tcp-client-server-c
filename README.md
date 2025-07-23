@@ -6,7 +6,7 @@ The system allows multiple clients to interact with a shared database of "social
 The code follows strict style guidlines which I won't post for copyright reasons.
 
 ## Purpose
-As stated previously, this was written for a class, following a specific style guideline and structure criteria.  
+As stated previously, this was written for an intro to c and software systems course at McGill, following a specific style guideline and structure criteria.
 
 ## Key Features
 
@@ -26,9 +26,9 @@ As stated previously, this was written for a class, following a specific style g
 I have 2 structs which I use to send data back and forth: `client_data`, which sends data from the client to the server, and `server_response`, which sends data from the server to the client.
 
 The client_data struct contains 2 fields:
-1. command, which is an enum containing the type of the command the client is sending.
-2. args, which is a union containing struct fields which correspond to the data the client will send to the server during a certain command.
-(Example: struct add contains `char[32] handle;` `char[10] followers;` `char[64] comment;`)
+1. `command`, which is an enum containing the type of the command the client is sending.
+2. `args`, which is a union containing struct fields which correspond to the data the client will send to the server during a certain command.
+(Example: struct **add** contains `char[32] handle;` `char[10] followers;` `char[64] comment;`)<br>
 There's no structs for commands such as find and exit—they send no data.
 
 When the user inputs a command and it's parsed by the client, the corresponding fields are filled into a client_data. It is then sent using the `send()` function to the socket file descriptor.
@@ -38,8 +38,8 @@ The server continuously loops, using the `select()` function to check for change
 Once the server has parsed and processed, it sends back the data through the server_response struct.
 
 server_response contains 2 fields:
-1. return_type, which is an enum containing the possible return types, of which there are three: ERROR, MESSAGE, SIGNAL.
-2. data, which is a union containing a struct for each of the return_type enum members.
+1. `return_type`, which is an enum containing the possible return types, of which there are three: **ERROR**, **MESSAGE**, **SIGNAL**.
+2. `data`, which is a union containing a struct for each of the return_type enum members.
 
 Struct error contains an int for the error code, and a char array to hold an error message.
 Struct message contains the length of the message which will be returned, and the size of the chunks if it is split up over multiple `send()` calls.
@@ -47,9 +47,9 @@ Struct signal contains a signal code, which the client can process.
 
 It then uses the `send()` function to send to the client file descriptor, and continues the loop, checking all other connected clients.
 
-After having sent the command to the server, the client awaits a response. It waits with the `read()` function until it receives a server_response struct. Once it does, it checks the type:
-If it's a MESSAGE type, it awaits a further stream of bytes. It expects as many as were stated in the server_response.data.message.length field, so it reads from the socket file descriptor until it receives all bytes, printing the message as it receives it to stdout. It reads server_response.data.message.chunk_size number of bytes at a time.
-If it's an ERROR type, it outputs the error code and message to the client stdout, and then checks if the error code is -1. If it is, the client shuts down; otherwise it continues.
+After having sent the command to the server, the client awaits a response. It waits with the `read()` function until it receives a `server_response` struct. Once it does, it checks the type:
+1. If it's a **MESSAGE** type, it awaits a further stream of bytes. It expects as many as were stated in the server_response.data.message.length field, so it reads from the socket file descriptor until it receives all bytes, printing the message as it receives it to stdout. It reads server_response.data.message.chunk_size number of bytes at a time.
+2. If it's an **ERROR** type, it outputs the error code and message to the client stdout, and then checks if the error code is -1. If it is, the client shuts down; otherwise it continues.
 If it's a SIGNAL type, it processes the signal. In my program there's only 2 implemented signals:
-*0 — indicates the server successfully processed the command with no message
-*1 — kills the program but without the error
+- 0 — indicates the server successfully processed the command with no message
+- 1 — kills the program but without the error
